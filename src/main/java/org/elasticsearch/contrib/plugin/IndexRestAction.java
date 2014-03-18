@@ -1,12 +1,11 @@
 package org.elasticsearch.contrib.plugin;
 
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.rest.BaseRestHandler;
-import org.elasticsearch.rest.RestChannel;
-import org.elasticsearch.rest.RestController;
-import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.rest.*;
+import org.json.simple.JSONObject;
 
 public class IndexRestAction extends BaseRestHandler {
 
@@ -19,6 +18,15 @@ public class IndexRestAction extends BaseRestHandler {
 
     @Override
     public void handleRequest(RestRequest restRequest, RestChannel restChannel) {
-        System.out.println("Here you go !!!!!!!!!");
+        String index = restRequest.param("index");
+        String type = restRequest.param("type");
+
+        String document = restRequest.content().toUtf8();
+
+        IndexResponse indexResponse = client.prepareIndex(index, type).setSource(restRequest.content()).execute().actionGet();
+        JSONObject response = Serializer.toJsonObject(indexResponse);
+        response.put("ok", "true");
+
+        restChannel.sendResponse(new StringRestResponse(RestStatus.OK, response.toJSONString()));
     }
 }
