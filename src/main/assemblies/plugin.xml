@@ -14,10 +14,18 @@
             <excludes>
                 <exclude>org.elasticsearch:elasticsearch</exclude>
                 <exclude>org.apache.lucene:lucene-core</exclude>
-                <exclude>org.apache.lucene:lucene-analyzers</exclude>
+                <exclude>org.apache.lucene:lucene-analyzers-common</exclude>
+                <exclude>org.apache.lucene:lucene-codecs</exclude>
+                <exclude>org.apache.lucene:lucene-queryparser</exclude>
                 <exclude>org.apache.lucene:lucene-queries</exclude>
                 <exclude>org.apache.lucene:lucene-memory</exclude>
                 <exclude>org.apache.lucene:lucene-highlighter</exclude>
+                <exclude>org.apache.lucene:lucene-suggest</exclude>
+                <exclude>org.apache.lucene:lucene-join</exclude>
+                <exclude>org.apache.lucene:lucene-spatial</exclude>
+                <exclude>org.apache.lucene:lucene-grouping</exclude>
+                <exclude>org.apache.lucene:lucene-sandbox</exclude>
+                <exclude>com.spatial4j:spatial4j</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
