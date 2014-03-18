@@ -12,5 +12,5 @@ Installation
 You could download the released artifacts from
 
 ```
-https://raw.github.com/machinelearner/es-index-notification/mvn-repo/es-index-notification/es-index-notification/1.1.zip
+https://raw.github.com/machinelearner/es-index-notification/mvn-repo/es-index-notification/es-index-notification/1.1/es-index-notification-1.1.zip
 ```
