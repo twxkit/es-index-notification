@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>es-index-notification</groupId>
+  <artifactId>es-index-notification</artifactId>
+  <versioning>
+    <versions>
+      <version>1.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20140318120354</lastUpdated>
+  </versioning>
+</metadata>
