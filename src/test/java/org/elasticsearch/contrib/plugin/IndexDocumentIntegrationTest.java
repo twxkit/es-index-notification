@@ -8,6 +8,8 @@ import org.elasticsearch.contrib.plugin.helper.*;
 import org.junit.After;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.jayway.restassured.RestAssured.with;
 import static name.mlnkrishnan.shouldJ.ShouldJ.it;
 
@@ -17,13 +19,13 @@ public class IndexDocumentIntegrationTest extends AbstractIntegrationTest {
 
     @After
     public void after() {
-        deleteIndexOnNode("ind1");
+        deleteIndexOnNode(index);
     }
 
     @Test
     public void shouldIndexDocumentAndCallbackAfterIndexingComplete() throws Exception {
         Response response = with().content(Streams.copyToStringFromClasspath("/indexDocumentIntegrationTest-ValidDoc.json"))
-                .with().headers("callback-url", "http://localhost:9999")
+                .with().headers("callback-url", "http://localhost:9797")
                 .post("/index-notification/" + index + "/" + type).andReturn();
 
         it(response.statusCode()).shouldBe(200);
@@ -32,7 +34,7 @@ public class IndexDocumentIntegrationTest extends AbstractIntegrationTest {
 
         final RequestCaptureHandler handler = AllHandlers.requestCaptureHandler();
 
-        new SimpleHttpServer(9999).registerHandler(handler).runWith(new Task() {
+        new SimpleHttpServer(9797).registerHandler(handler).runWith(new Task() {
             @Override
             public Object execute() {
                 Boolean taskResponse = new RetryTask(5, 3000).execute(new Task<Boolean>() {
@@ -53,6 +55,21 @@ public class IndexDocumentIntegrationTest extends AbstractIntegrationTest {
             }
         });
 
+        JsonPath searchResponse = search(index, type, "katta").getBody().jsonPath();
+        it(searchResponse.get("hits.total")).shouldBe(1);
+    }
+
+    @Test
+    public void shouldIndexDocument_EvenIfCallbackDoesNotExist() throws IOException, InterruptedException {
+        Response response = with().content(Streams.copyToStringFromClasspath("/indexDocumentIntegrationTest-ValidDoc.json"))
+                .post("/index-notification/" + index + "/" + type).andReturn();
+        it(response.statusCode()).shouldBe(200);
+
+        Thread.sleep(2 * 1000);
+        refreshIndices(index);
+
+        JsonPath searchResponse = search(index, type, "katta").getBody().jsonPath();
+        it(searchResponse.get("hits.total")).shouldBe(1);
     }
 }
 

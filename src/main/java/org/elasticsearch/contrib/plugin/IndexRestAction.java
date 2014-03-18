@@ -1,6 +1,7 @@
 package org.elasticsearch.contrib.plugin;
 
 import com.jayway.restassured.http.ContentType;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
@@ -36,23 +37,34 @@ public class IndexRestAction extends BaseRestHandler {
         final String index = restRequest.param("index");
         final String type = restRequest.param("type");
 
-        final String callbackUrl = restRequest.header("callback-url");
-
         this.executorService.submit(new Callable<IndexResponse>() {
             @Override
             public IndexResponse call() throws Exception {
                 IndexResponse indexResponse = client.prepareIndex(index, type).setSource(restRequest.content()).execute().actionGet();
-
-                com.jayway.restassured.response.Response callbackResponse =
-                        with().content(Serializer.toJson(indexResponse)).contentType(ContentType.JSON).post(callbackUrl).andReturn();
-
-                ES_LOGGER.info("Callback response from URL {} : {}", callbackUrl, callbackResponse.body().asString());
-
+                callBack(indexResponse, restRequest);
                 return indexResponse;
             }
         });
 
         restChannel.sendResponse(new StringRestResponse(RestStatus.OK, Response.successfulResponse().toJson()));
+    }
 
+    private void callBack(IndexResponse indexResponse, RestRequest restRequest) {
+        String callbackUrl = null;
+        try {
+            callbackUrl = restRequest.header("callback-url");
+
+            if (StringUtils.isEmpty(callbackUrl)) {
+                ES_LOGGER.warn("Callback URL not found in request header [callback-url], proceeding with index operation");
+                return;
+            }
+
+            com.jayway.restassured.response.Response callbackResponse =
+                    with().content(Serializer.toJson(indexResponse)).contentType(ContentType.JSON).post(callbackUrl).andReturn();
+
+            ES_LOGGER.info("Callback response from URL {} : {}", callbackUrl, callbackResponse.body().asString());
+        } catch (Exception e) {
+            ES_LOGGER.error("Error while calling back to URL {}", e, callbackUrl);
+        }
     }
 }
