@@ -71,6 +71,50 @@ public class IndexDocumentIntegrationTest extends AbstractIntegrationTest {
         JsonPath searchResponse = search(index, type, "katta").getBody().jsonPath();
         it(searchResponse.get("hits.total")).shouldBe(1);
     }
+
+    @Test
+    public void shouldIndexDocumentWithSuppliedId() throws IOException, InterruptedException {
+        String id = "randomId";
+        Response response = with().content(Streams.copyToStringFromClasspath("/indexDocumentIntegrationTest-ValidDoc.json"))
+                .put("/index-notification/" + index + "/" + type + "/" + id).andReturn();
+        it(response.statusCode()).shouldBe(200);
+
+        Thread.sleep(2 * 1000);
+        refreshIndices(index);
+
+        JsonPath searchResponse = search(index, type, "katta").getBody().jsonPath();
+        it(searchResponse.get("hits.total")).shouldBe(1);
+        it(searchResponse.get("hits.hits[0]._id")).shouldBe(id);
+    }
+
+    @Test
+    public void shouldReIndexDocument() throws IOException, InterruptedException {
+        String id = "randomId";
+
+        //index initial document
+        Response response = with().content(Streams.copyToStringFromClasspath("/indexDocumentIntegrationTest-ValidDoc.json"))
+                .put("/index-notification/" + index + "/" + type + "/" + id).andReturn();
+        it(response.statusCode()).shouldBe(200);
+
+        Thread.sleep(2 * 1000);
+        refreshIndices(index);
+
+        JsonPath searchResponse = search(index, type, "katta").getBody().jsonPath();
+        it(searchResponse.get("hits.total")).shouldBe(1);
+        it(searchResponse.get("hits.hits[0]._id")).shouldBe(id);
+
+        //re-index the same document with different content
+        response = with().content(Streams.copyToStringFromClasspath("/indexDocumentIntegrationTest-ValidDocWithRole.json"))
+                .put("/index-notification/" + index + "/" + type + "/" + id).andReturn();
+        it(response.statusCode()).shouldBe(200);
+
+        Thread.sleep(2 * 1000);
+        refreshIndices(index);
+
+        searchResponse = search(index, type, "dev").getBody().jsonPath();
+        it(searchResponse.get("hits.total")).shouldBe(1);
+        it(searchResponse.get("hits.hits[0]._id")).shouldBe(id);
+    }
 }
 
 

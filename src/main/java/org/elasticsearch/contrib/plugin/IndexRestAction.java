@@ -28,6 +28,7 @@ public class IndexRestAction extends BaseRestHandler {
     protected IndexRestAction(Settings settings, Client client, RestController controller) {
         super(settings, client);
         controller.registerHandler(RestRequest.Method.POST, "/index-notification/{index}/{type}", this);
+        controller.registerHandler(RestRequest.Method.PUT, "/index-notification/{index}/{type}/{id}", this);
 
         this.executorService = EsExecutors.newScalingExecutorService(1, 10, 1, TimeUnit.MINUTES, EsExecutors.daemonThreadFactory("es-index-notification"));
     }
@@ -36,11 +37,12 @@ public class IndexRestAction extends BaseRestHandler {
     public void handleRequest(final RestRequest restRequest, RestChannel restChannel) {
         final String index = restRequest.param("index");
         final String type = restRequest.param("type");
+        final String id = restRequest.param("id");
 
         this.executorService.submit(new Callable<IndexResponse>() {
             @Override
             public IndexResponse call() throws Exception {
-                IndexResponse indexResponse = client.prepareIndex(index, type).setSource(restRequest.content()).execute().actionGet();
+                IndexResponse indexResponse = client.prepareIndex(index, type, id).setSource(restRequest.content()).execute().actionGet();
                 callBack(indexResponse, restRequest);
                 return indexResponse;
             }
