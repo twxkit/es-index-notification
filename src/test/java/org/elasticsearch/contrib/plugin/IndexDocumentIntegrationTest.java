@@ -30,7 +30,9 @@ public class IndexDocumentIntegrationTest extends AbstractIntegrationTest {
 
         it(response.statusCode()).shouldBe(200);
         JsonPath jsonPath = response.body().jsonPath();
-        it(jsonPath.get("status")).shouldBe("success");
+        it(jsonPath.get("status")).shouldBe("SUCCESS");
+        final String correlationId = jsonPath.get("correlation-id");
+        it(correlationId).shouldNotBeNull();
 
         final RequestCaptureHandler handler = AllHandlers.requestCaptureHandler();
 
@@ -45,6 +47,7 @@ public class IndexDocumentIntegrationTest extends AbstractIntegrationTest {
 
                         it(requestBody).shouldContain(index);
                         it(requestBody).shouldContain(type);
+                        it(requestBody).shouldContain(correlationId);
                         it(handler.contentType()).shouldContain("application/json");
 
                         return true;

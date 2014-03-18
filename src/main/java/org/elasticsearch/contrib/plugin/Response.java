@@ -1,70 +1,26 @@
 package org.elasticsearch.contrib.plugin;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.json.simple.JSONObject;
 
-import java.util.List;
+public class Response extends JSONObject {
 
-public class Response {
-
-    public static final String SUCCESS = "success";
-    public static final String FAILURE = "failure";
-
-    @JsonProperty
-    private String status;
-    @JsonProperty
-    private String message;
-    @JsonProperty
-    private List<String> errors;
-
-    private void setFailureResponse(String message) {
-        this.message = message;
-        status = FAILURE;
+    enum Status {
+        SUCCESS, FAILURE
     }
 
-    private void setSuccessResponse() {
-        status = SUCCESS;
+    private Response() {
     }
 
-    public void setErrors(List<String> errors) {
-        this.errors = errors;
+    public static Response successfulResponse(String correlationId) {
+        Response response = successfulResponse();
+        response.put("correlation-id", correlationId);
+        return response;
     }
 
-    @JsonIgnore
-    public String getMessage() {
-        return message;
-    }
-
-    @JsonIgnore
-    public List<String> getErrors() {
-        return errors;
-    }
 
     public static Response successfulResponse() {
         Response response = new Response();
-        response.setSuccessResponse();
+        response.put("status", Status.SUCCESS.toString());
         return response;
-    }
-
-    public static Response failureResponse() {
-        Response response = new Response();
-        response.setFailureResponse(null);
-        return response;
-    }
-
-
-    public static Response failureResponse(String message) {
-        Response response = new Response();
-        response.setFailureResponse(message);
-        return response;
-    }
-
-
-    public String toJson() {
-        return Serializer.toJson(this);
-    }
-
-    public boolean isSuccessful() {
-        return SUCCESS.equals(status);
     }
 }

@@ -11,7 +11,9 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.common.util.concurrent.EsThreadPoolExecutor;
 import org.elasticsearch.rest.*;
+import org.json.simple.JSONObject;
 
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -39,19 +41,23 @@ public class IndexRestAction extends BaseRestHandler {
         final String type = restRequest.param("type");
         final String id = restRequest.param("id");
 
+        final String correlationId = UUID.randomUUID().toString();
+
         this.executorService.submit(new Callable<IndexResponse>() {
             @Override
             public IndexResponse call() throws Exception {
                 IndexResponse indexResponse = client.prepareIndex(index, type, id).setSource(restRequest.content()).execute().actionGet();
-                callBack(indexResponse, restRequest);
+                callBack(indexResponse, restRequest, correlationId);
                 return indexResponse;
             }
         });
 
-        restChannel.sendResponse(new StringRestResponse(RestStatus.OK, Response.successfulResponse().toJson()));
+        restChannel.sendResponse(new StringRestResponse(RestStatus.OK, Response.successfulResponse(correlationId).toJSONString()));
     }
 
-    private void callBack(IndexResponse indexResponse, RestRequest restRequest) {
+    private void callBack(IndexResponse indexResponse, RestRequest restRequest, String correlationId) {
+        JSONObject response = Serializer.toJsonObject(indexResponse);
+        response.put("correlation-id", correlationId);
         String callbackUrl = null;
         try {
             callbackUrl = restRequest.header("callback-url");
@@ -62,7 +68,7 @@ public class IndexRestAction extends BaseRestHandler {
             }
 
             com.jayway.restassured.response.Response callbackResponse =
-                    with().content(Serializer.toJson(indexResponse)).contentType(ContentType.JSON).post(callbackUrl).andReturn();
+                    with().content(response.toJSONString()).contentType(ContentType.JSON).post(callbackUrl).andReturn();
 
             ES_LOGGER.info("Callback response from URL {} : {}", callbackUrl, callbackResponse.body().asString());
         } catch (Exception e) {
