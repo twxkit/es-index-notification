@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.jayway.restassured.RestAssured.post;
+
 public abstract class AbstractIntegrationTest {
     private static final TimeValue TIMEOUT = TimeValue.timeValueSeconds(5);
     private final static ESLogger ES_LOGGER = Loggers.getLogger(AbstractIntegrationTest.class);
@@ -143,5 +145,9 @@ public abstract class AbstractIntegrationTest {
                 .actionGet(TIMEOUT);
         waitForGreenClusterState(indexName);
         return createIndexResponse;
+    }
+
+    protected com.jayway.restassured.response.Response search(String index, String type, final String query) {
+        return post("/" + index + "/" + type + "/_search?q=" + query).andReturn();
     }
 }
