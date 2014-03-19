@@ -30,7 +30,7 @@ curl -H"Content-Type: application/json" -H"callback-url: http://myapp/index/noti
 {
     "name":"Java 8 Cookbook",
     "description":"Explains all new cool java 8 features with examples"
-}
+}'
 ```
 
 
@@ -42,7 +42,7 @@ curl -H"Content-Type: application/json" -H"callback-url: http://myapp/index/noti
 {
     "name":"Java 8 Cookbook",
     "description":"Explains all new cool java 8 features with examples"
-}
+}'
 ```
     
 In both the above examples, replace the params with in braces `{ }` and a callback would be made to the sepcified url via `callback-url`
