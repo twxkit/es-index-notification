@@ -5,7 +5,7 @@ Index JSON into ES with goodness of callback notification.
 
 By default, elasticsearch does indexing of a document in background once the request is submitted. If you want to be notified once the background indexing process is complete, the default elasticsearch does not have a mechanism to do it. This pluing gives you that functionality for you.
 
-Index any JSON document with a `callbacl-url` in the request header. Once the indexing is done, this plugin sends a status of index process to the `callback-url` specified both in success and failure scenarios.
+Index any JSON document with a `callback-url` in the request header. Once the indexing is done, this plugin sends a status of index process to the `callback-url` specified both in success and failure scenarios.
 
 
 Installation
