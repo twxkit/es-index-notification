@@ -20,10 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jayway.restassured.RestAssured.with;
 
 public class IndexRestAction extends BaseRestHandler {
-
     private final static ESLogger ES_LOGGER = Loggers.getLogger(IndexRestAction.class);
-
-
     private final EsThreadPoolExecutor executorService;
 
     @Inject
@@ -40,6 +37,7 @@ public class IndexRestAction extends BaseRestHandler {
         final String index = restRequest.param("index");
         final String type = restRequest.param("type");
         final String id = restRequest.param("id");
+        final String callbackUrl = restRequest.header("callback-url");
 
         final String correlationId = UUID.randomUUID().toString();
 
@@ -47,7 +45,7 @@ public class IndexRestAction extends BaseRestHandler {
             @Override
             public IndexResponse call() throws Exception {
                 IndexResponse indexResponse = client.prepareIndex(index, type, id).setSource(restRequest.content()).execute().actionGet();
-                callBack(indexResponse, restRequest, correlationId);
+                callBack(indexResponse, callbackUrl, correlationId);
                 return indexResponse;
             }
         });
@@ -55,12 +53,10 @@ public class IndexRestAction extends BaseRestHandler {
         restChannel.sendResponse(new StringRestResponse(RestStatus.OK, Response.successfulResponse(correlationId).toJSONString()));
     }
 
-    private void callBack(IndexResponse indexResponse, RestRequest restRequest, String correlationId) {
+    private void callBack(IndexResponse indexResponse, String callbackUrl, String correlationId) {
         JSONObject response = Serializer.toJsonObject(indexResponse);
         response.put("correlation-id", correlationId);
-        String callbackUrl = null;
         try {
-            callbackUrl = restRequest.header("callback-url");
 
             if (StringUtils.isEmpty(callbackUrl)) {
                 ES_LOGGER.warn("Callback URL not found in request header [callback-url], proceeding with index operation");
