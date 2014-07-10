@@ -3,10 +3,11 @@
   <groupId>es-index-notification</groupId>
   <artifactId>es-index-notification</artifactId>
   <versioning>
-    <release>1.2</release>
+    <release>1.3</release>
     <versions>
       <version>1.2</version>
+      <version>1.3</version>
     </versions>
-    <lastUpdated>20140709110940</lastUpdated>
+    <lastUpdated>20140710042211</lastUpdated>
   </versioning>
 </metadata>
