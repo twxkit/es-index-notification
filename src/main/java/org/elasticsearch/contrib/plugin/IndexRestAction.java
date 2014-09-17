@@ -29,11 +29,11 @@ public class IndexRestAction extends BaseRestHandler {
         controller.registerHandler(RestRequest.Method.POST, "/index-notification/{index}/{type}", this);
         controller.registerHandler(RestRequest.Method.PUT, "/index-notification/{index}/{type}/{id}", this);
 
-        this.executorService = EsExecutors.newScalingExecutorService(1, 10, 1, TimeUnit.MINUTES, EsExecutors.daemonThreadFactory("es-index-notification"));
+        this.executorService = EsExecutors.newScaling(1, 10, 1, TimeUnit.MINUTES, EsExecutors.daemonThreadFactory("es-index-notification"));
     }
 
     @Override
-    public void handleRequest(final RestRequest restRequest, RestChannel restChannel) {
+    public void handleRequest(final RestRequest restRequest, final RestChannel restChannel, final Client client) {
         final String index = restRequest.param("index");
         final String type = restRequest.param("type");
         final String id = restRequest.param("id");
@@ -50,7 +50,7 @@ public class IndexRestAction extends BaseRestHandler {
             }
         });
 
-        restChannel.sendResponse(new StringRestResponse(RestStatus.OK, Response.successfulResponse(correlationId).toJSONString()));
+        restChannel.sendResponse(new BytesRestResponse(RestStatus.OK, Response.successfulResponse(correlationId).toJSONString()));
     }
 
     private void callBack(IndexResponse indexResponse, String callbackUrl, String correlationId) {
