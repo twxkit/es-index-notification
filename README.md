@@ -15,7 +15,7 @@ Use `ES_HOME/bin/plugin` to install this plugin.
 
 ```
 Example:
-    (es_home)$ ./bin/plugin -i es-index-notification -u https://raw.github.com/machinelearner/es-index-notification/mvn-repo/es-index-notification/es-index-notification/1.1/es-index-notification-1.1.zip
+    (es_home)$ ./bin/plugin -i es-index-notification -u https://github.com/machinelearner/es-index-notification/releases/download/v1.3/es-index-notification-1.3.zip
 ```
 
 Usage
