@@ -66,9 +66,12 @@ public abstract class AbstractIntegrationTest {
         String[] indices = node.client().admin().cluster().prepareState()
                 .execute().actionGet().getState().getMetaData()
                 .concreteAllIndices();
-        DeleteIndexResponse deleteIndexResponse = node.client().admin().indices()
-                .prepareDelete(indices).execute().actionGet();
-        ES_LOGGER.info("Delete indices [{}] acknowledged [{}]", indices.toString(), deleteIndexResponse.isAcknowledged());
+
+        if (indices != null && indices.length > 0) {
+            DeleteIndexResponse deleteIndexResponse = node.client().admin().indices()
+                    .prepareDelete(indices).execute().actionGet();
+            ES_LOGGER.info("Delete indices [{}] acknowledged [{}]", indices.toString(), deleteIndexResponse.isAcknowledged());
+        }
 
         node.close();
     }
