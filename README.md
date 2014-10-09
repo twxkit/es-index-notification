@@ -1,4 +1,4 @@
-es-index-notification [![Build Status](https://travis-ci.org/machinelearner/es-index-notification.png?branch=master)](https://travis-ci.org/machinelearner/es-index-notification)
+es-index-notification [![Build Status](https://travis-ci.org/twxkit/es-index-notification.png?branch=master)](https://travis-ci.org/twxkit/es-index-notification)
 =====================
 
 Index JSON into ES with goodness of callback notification.
@@ -15,7 +15,7 @@ Use `ES_HOME/bin/plugin` to install this plugin.
 
 ```
 Example:
-    (es_home)$ ./bin/plugin -i es-index-notification -u https://github.com/machinelearner/es-index-notification/releases/download/v1.3/es-index-notification-1.3.zip
+    (es_home)$ ./bin/plugin -i es-index-notification -u https://github.com/twxkit/es-index-notification/releases/download/v1.3/es-index-notification-1.3.zip
 ```
 
 Usage
